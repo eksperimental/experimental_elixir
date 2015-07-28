@@ -1,6 +1,7 @@
 defmodule Experimental.KernelGuardTest do
   use ExUnit.Case, async: true
-  doctest Experimental.KernelGuard, import: Experimental.KernelGuard
+  doctest Experimental.KernelGuard, import: true
+  
   import Experimental.KernelGuard
 
   test "is_neg_integer/1" do

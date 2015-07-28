@@ -1,6 +1,7 @@
 defmodule Experimental.KernelStructTest do
   use ExUnit.Case, async: true
-  doctest Experimental.KernelStruct, import: Experimental.KernelStruct
+  doctest Experimental.KernelStruct, import: true
+  
   import Experimental.KernelStruct
 
   defmodule Potion do

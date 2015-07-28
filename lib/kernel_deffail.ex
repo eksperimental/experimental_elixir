@@ -1,5 +1,5 @@
 defmodule Experimental.KernelDeffail do
-  
+
   @doc """
   Defines a function that will fail and raise an error if any
   of the the conditions in the guards are not met.
@@ -29,29 +29,34 @@ defmodule Experimental.KernelDeffail do
         def check(a) when is_integer(a) do
           :ok
         end
-
-        deffail check(a) do
-          :error
-        end
       end
 
       Bar.check("",3)
 
   """
-  defmacro deffail(call, expr) do
-    case call do
-      {:when, _line, _} ->
-        quote do
-          def(unquote(call), unquote(expr))
-        end
-      
-      _ ->
-        quote do
-          raise ArgumentError, message: "cannot use `deffail` without a `when` clause"
-        end
+  defmacro deffail(call, expr \\ nil)
+
+  defmacro deffail(call = {clause, _line, _}, nil) when clause == :when do
+    quote do
+      def(unquote(call), [do: raise ArgumentError])
     end
   end
 
+  defmacro deffail(call = {clause, _line, _}, expr) when clause == :when do
+    quote do
+      def(unquote(call), unquote(expr))
+    end
+  end
+
+  defmacro deffail(_call, _expr) do
+    quote do
+      raise ArgumentError, message: "cannot use `deffail` without a `when` clause"
+    end
+  end
+
+  @doc """
+  """
+  defmacro defensure(call, expr \\ nil)
   defmacro defensure(call = {clause, _line, _}, expr) when clause in [:when, :that] do
     quote do
       def(unquote(call), unquote(expr))
@@ -60,7 +65,7 @@ defmodule Experimental.KernelDeffail do
 
   defmacro defensure(_call, _expr) do
     quote do
-      raise ArgumentError, message: "cannot use `defensure` without a `that` or a `when` clause"
+      raise FunctionClauseError, message: "cannot use `defensure` without a `that` or a `when` clause"
     end
   end
 end

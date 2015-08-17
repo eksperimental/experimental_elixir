@@ -8,9 +8,19 @@ defmodule Experimental.KernelDeffailTest do
 
   defmodule Foo do
     deffail sum_positives(a, b)
-      when not (is_non_neg_integer(a)
-      and is_non_neg_integer(b)) do
+      when not (is_non_neg_integer(a) and is_non_neg_integer(b)) do
       raise ArgumentError
+    end
+
+    defensure sum_positives(a, b) when
+      (is_non_neg_integer(a) and is_non_neg_integer(b)) do
+      raise ArgumentError
+    end
+
+    defensure sum_positives(a, b) do
+      is_non_neg_integer(a) and is_non_neg_integer(b)
+    else
+      raise ""
     end
 
     deffail sum_positives(a, b)
@@ -53,7 +63,7 @@ defmodule Experimental.KernelDeffailTest do
     assert Foo.sum_positives(2, 3) == 5
     assert Foo.sum_positives(0, 0) == 0
 
-    assert_raise ArgumentError, "cannot use `deffail` without a `when` clause", fn ->
+    assert_raise ArgumentError, "cannot use `deffail/2` without a `when` clause", fn ->
       deffail foo(a), do: raise ArgumentError, message: "this will not raise"
     end
   end
@@ -87,8 +97,8 @@ defmodule Experimental.KernelDeffailTest do
     assert_raise ArgumentError, "argument error", fn ->
       Foo.check(:ten)
     end
-    
-    assert_raise ArgumentError, "cannot use `deffail` without a `when` clause", fn ->
+
+    assert_raise ArgumentError, "cannot use `deffail/2` without a `when` clause", fn ->
       deffail check(a), do: :error
     end
   end

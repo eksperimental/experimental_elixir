@@ -50,25 +50,44 @@ defmodule Experimental.KernelDeffail do
 
   defmacro deffail(_call, _expr) do
     quote do
-      raise ArgumentError, message: "cannot use `deffail` without a `when` clause"
+      raise ArgumentError, message: "cannot use `deffail/2` without a `when` clause"
     end
   end
 
   @doc """
+    
+    ## Examples
+
+        defensure sum_positives(a, b) do
+          is_non_neg_integer(a) and is_non_neg_integer(b)
+        else
+          raise ""
+        end
+
   """
-  defmacro defensure(call, expr \\ nil)
-  defmacro defensure(call = {clause, _line, _}, expr) when clause in [:when, :that] do
+  defmacro defensure(call, clauses)
+
+  defmacro defensure(_call = {clause, _line, _}, nil) when clause == :when do
+    raise ArgumentError, message: "cannot call `defensure/2` without a `when` clause"
+  end
+
+  defmacro defensure(call, clauses) do
+    do_clause = Keyword.get(clauses, :do, nil)
+    else_clause = Keyword.get(clauses, :else, nil)
+
     quote do
-      def(unquote(call), unquote(expr))
+      # TODO: add do block as a when clause into call
+      def(unquote(call), unquote(else_clause))
     end
   end
 
   defmacro defensure(_call, _expr) do
     quote do
-      raise FunctionClauseError, message: "cannot use `defensure` without a `that` or a `when` clause"
+      raise ArgumentError, message: "cannot use `defensure/2` without a `do` block"
     end
   end
 end
+
 
 defmodule ArgumentError do
   defexception [module: nil, function: nil, arity: nil, message: nil]

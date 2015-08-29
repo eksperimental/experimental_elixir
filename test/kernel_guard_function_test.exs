@@ -1,8 +1,8 @@
-defmodule Experimental.KernelGuardTest do
+defmodule Experimental.KernelGuardFunctionTest do
   use ExUnit.Case, async: true
-  doctest Experimental.KernelGuard, import: true
+  doctest Experimental.KernelGuardFunction, import: true
   
-  import Experimental.KernelGuard
+  import Experimental.KernelGuardFunction
 
   test "is_neg_integer/1" do
     assert is_neg_integer(-1) == true

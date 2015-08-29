@@ -1,4 +1,4 @@
-defmodule Experimental.KernelGuard do
+defmodule Experimental.KernelGuardFunction do
 
   @doc """
   Returns `true` if `term` is a negative integer (ie. term < 0); otherwise returns `false`.
@@ -6,11 +6,9 @@ defmodule Experimental.KernelGuard do
   Allowed in guard tests. Inlined by the compiler.
   """
   @spec is_neg_integer(term) :: boolean
-  #def is_neg_integer(term) do
-  #  :erlang.andalso(:erlang.is_integer(term), :erlang.<(term, 0))
-  #end
   defmacro is_neg_integer(term) do
     quote do: is_integer(unquote(term)) and unquote(term) < 0
+    #quote do: :erlang.andalso(:erlang.is_integer(unquote(term)), :erlang.<(unquote(term), 0))
   end
 
   @doc """
@@ -19,11 +17,9 @@ defmodule Experimental.KernelGuard do
   Allowed in guard tests. Inlined by the compiler.
   """
   @spec is_non_neg_integer(term) :: boolean
-  #def is_non_neg_integer(term) do
-  #  :erlang.andalso(:erlang.is_integer(term), :erlang.>=(term, 0))
-  #end
   defmacro is_non_neg_integer(term) do
     quote do: is_integer(unquote(term)) and unquote(term) >= 0
+    #quote do: :erlang.andalso(:erlang.is_integer(unquote(term)), :erlang.>=(unquote(term), 0))
   end
 
   @doc """
@@ -32,11 +28,9 @@ defmodule Experimental.KernelGuard do
   Allowed in guard tests. Inlined by the compiler.
   """
   @spec is_non_pos_integer(term) :: boolean
-  #def is_non_pos_integer(term) do
-  #  :erlang.andalso(:erlang.is_integer(term), :erlang."=<"(term, 0))
-  #end
   defmacro is_non_pos_integer(term) do
     quote do: is_integer(unquote(term)) and unquote(term) <= 0
+    #quote do: :erlang.andalso(:erlang.is_integer(unquote(term)), :erlang."=<"(unquote(term), 0))
   end
 
   @doc """
@@ -45,11 +39,9 @@ defmodule Experimental.KernelGuard do
   Allowed in guard tests. Inlined by the compiler.
   """
   @spec is_pos_integer(term) :: boolean
-  #def is_pos_integer(term) do
-  #  :erlang.andalso(:erlang.is_integer(term), :erlang.>(term, 0))
-  #end
   defmacro is_pos_integer(term) do
     quote do: is_integer(unquote(term)) and unquote(term) > 0
+    #quote do: :erlang.andalso(:erlang.is_integer(unquote(term)), :erlang.>(unquote(term), 0))
   end
 
   @doc """

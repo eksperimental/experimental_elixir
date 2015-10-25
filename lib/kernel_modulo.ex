@@ -1,11 +1,11 @@
 defmodule Experimental.KernelModulo do
   @doc """
-  Modulo operation
+  Modulo operation.
 
   Returns the remainder after division of `number` by `modulus`.
-  It returns 0 or a positive integer.
+  Unlike `Kernel.rem/2`, `Kernel.mod/2` will always return `0` or a positive integer.
 
-  More information: https://en.wikipedia.org/wiki/Modulo_operation
+  More information: [Modulo operation](https://en.wikipedia.org/wiki/Modulo_operation) on Wikipedia.
 
   ## Examples
 
@@ -36,40 +36,18 @@ defmodule Experimental.KernelModulo do
     ** (ArithmeticError) bad argument in arithmetic expression
 
     iex> mod(1.5, 2)
-    ** (FunctionClauseError) no function clause matches
+    ** (FunctionClauseError) no function clause matching in Experimental.KernelModulo.mod/2
 
   """
   @spec mod(integer, integer) :: non_neg_integer
-  def mod(number, modulus)
-
-  def mod(_number, 0), do:
-    raise ArithmeticError, message: "bad argument in arithmetic expression"
-
-  def mod(number, modulus) when not is_integer(number) or not is_integer(modulus), do:
-    raise FunctionClauseError
-  
-  def mod(0, _modulus), do: 0
-  def mod(_number, 1),  do: 0
-  def mod(_number, -1), do: 0
-
-  # Optimizations
-  def mod(number, modulus) when abs(number) == abs(modulus),          do: 0
-  def mod(number, modulus) when number > 0 and number < abs(modulus), do: number
-  def mod(number, modulus) when number > 0 and modulus < 0 and number > abs(modulus) do
-    mod(number, abs(modulus))
+  def mod(number, modulus) when is_integer(number) and is_integer(modulus) do
+    rem(number, modulus) |> normalize_mod(modulus)
   end
 
-  def mod(number, modulus) when number > 0 do
-    rem(number, modulus)
-  end
-
-  def mod(number, modulus) when number < 0 and modulus > 0 do
-    n = (div(abs(number), modulus) + 1) * modulus + number
-    mod(n, modulus)
-  end
-
-  def mod(number, modulus) when number < 0 and modulus < 0 do
-    mod(abs(number), abs(modulus))
-  end
-
+  defp normalize_mod(remainder, modulus) when remainder < 0 and modulus < 0,
+    do: abs(remainder)
+  defp normalize_mod(remainder, modulus) when remainder < 0,
+    do: remainder + modulus
+  defp normalize_mod(remainder, _modulus),
+    do: remainder
 end

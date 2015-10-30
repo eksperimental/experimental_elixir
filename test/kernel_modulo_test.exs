@@ -26,24 +26,24 @@ defmodule Experimental.KernelModuloTest do
   end
 
   test "modulo: number positive, modulus negative" do
-    assert mod(13, -42)  == 13
+    assert mod(13, -42)  == -29
     assert mod(13, -13)  == 0
-    assert mod(13, -5 )  == 3
+    assert mod(13, -5 )  == -2
     assert mod(13, -1 )  == 0
 
-    assert mod( 1, -13)  == 1
-    assert mod( 1, -5 )  == 1
+    assert mod( 1, -13)  == -12
+    assert mod( 1, -5 )  == -4
     assert mod( 1, -1 )  == 0
   end
 
   test "modulo: number negative, modulus negative" do
-    assert mod(-13, -42) == 13
+    assert mod(-13, -42) == -13
     assert mod(-13, -13) == 0
-    assert mod(-13, -5 ) == 3
-    assert mod(-13, -1 ) == 0
+    assert mod(-13, -5 ) == -3
+    assert mod(-13, -1 ) == -0
 
-    assert mod(-1, -13)  == 1
-    assert mod(-1, -5 )  == 1
+    assert mod(-1, -13)  == -1
+    assert mod(-1, -5 )  == -1
     assert mod(-1, -1 )  == 0
   end
 
@@ -77,7 +77,7 @@ defmodule Experimental.KernelModuloTest do
 
   test "modulo: number 1" do
     assert mod(1,  13)  == 1
-    assert mod(1, -13)  == 1
+    assert mod(1, -13)  == -12
     assert mod(1,  1)   == 0
     assert mod(1, -1)   == 0
     assert_raise ArithmeticError, fn ->
@@ -87,7 +87,7 @@ defmodule Experimental.KernelModuloTest do
 
   test "modulo: number -1" do
     assert mod(-1,  13)  == 12
-    assert mod(-1, -13)  == 1
+    assert mod(-1, -13)  == -1
     assert mod(-1,  1)   == 0
     assert mod(-1, -1)   == 0
     assert_raise ArithmeticError, fn ->
@@ -99,17 +99,17 @@ defmodule Experimental.KernelModuloTest do
     assert mod( 42,  2)  == 0
     assert mod( 42, -2)  == 0
     assert mod(-43,  2)  == 1
-    assert mod(-43, -2)  == 1
+    assert mod(-43, -2)  == -1
 
     assert mod( 42,  4)  == 2
-    assert mod( 42, -4)  == 2
+    assert mod( 42, -4)  == -2
     assert mod(-43,  4)  == 1
-    assert mod(-43, -4)  == 3
+    assert mod(-43, -4)  == -3
 
     assert mod( 42,  100)  == 42
-    assert mod( 42, -100)  == 42
+    assert mod( 42, -100)  == -58
     assert mod(-43,  100)  == 57
-    assert mod(-43, -100)  == 43
+    assert mod(-43, -100)  == -43
     
     assert_raise ArithmeticError, fn ->
       mod( 42,  0)
@@ -132,27 +132,27 @@ defmodule Experimental.KernelModuloTest do
     assert mod(-42,  3)  == 0
     assert mod(-42, -3)  == 0
     assert mod( 43,  3)  == 1
-    assert mod( 43, -3)  == 1
+    assert mod( 43, -3)  == -2
     assert mod(-43,  3)  == 2
-    assert mod(-43, -3)  == 1
+    assert mod(-43, -3)  == -1
 
     assert mod( 42,  13)  == 3
-    assert mod( 42, -13)  == 3
+    assert mod( 42, -13)  == -10
     assert mod(-42,  13)  == 10
-    assert mod(-42, -13)  == 3
+    assert mod(-42, -13)  == -3
     assert mod( 43,  13)  == 4
-    assert mod( 43, -13)  == 4
+    assert mod( 43, -13)  == -9
     assert mod(-43,  13)  == 9
-    assert mod(-43, -13)  == 4
+    assert mod(-43, -13)  == -4
 
     assert mod( 42,  99)  == 42
-    assert mod( 42, -99)  == 42
+    assert mod( 42, -99)  == -57
     assert mod(-42,  99)  == 57
-    assert mod(-42, -99)  == 42
+    assert mod(-42, -99)  == -42
     assert mod( 43,  99)  == 43
-    assert mod( 43, -99)  == 43
+    assert mod( 43, -99)  == -56
     assert mod(-43,  99)  == 56
-    assert mod(-43, -99)  == 43
+    assert mod(-43, -99)  == -43
 
     assert mod( 42,  1)  == 0
     assert mod( 42, -1)  == 0

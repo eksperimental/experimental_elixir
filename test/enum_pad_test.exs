@@ -8,12 +8,17 @@ defmodule Experimental.EnumPadTest do
 
   defp build_emumerables(range) do
     [ range,
+      # list
       Enum.to_list(range),
-      Stream.into(range, []),
+      # stream
+      # Stream.into(range, []),
     ]
   end
 
-  @empty_enumerables [%{}, []]
+  @empty_enumerables [
+    %{},
+    []
+  ]
 
   defp cyc(list) do
     Stream.cycle(list)
@@ -30,7 +35,7 @@ defmodule Experimental.EnumPadTest do
     assert enumerable?([a: 1, b: 2])
     assert enumerable?(Stream.cycle([nil]))
     assert enumerable?(Stream.into(1..10, []))
-    
+
     refute enumerable?(nil)
     refute enumerable?(1)
     refute enumerable?({})
@@ -74,9 +79,11 @@ defmodule Experimental.EnumPadTest do
   test "pad: 1 element enumerable" do
     for enum <- build_emumerables(10000..10000) do
       assert pad(enum, 0)    == Enum.to_list(enum)
-      assert pad(enum, -100) == Enum.to_list(enum)
+      assert_raise FunctionClauseError, fn ->
+        pad(enum, -100) == Enum.to_list(enum)
+      end
       assert pad(enum, 1)    == Enum.to_list(enum)
-      assert pad(enum, 5) 
+      assert pad(enum, 5)
         == [10000, nil, nil, nil, nil]
       assert pad(enum, 5, fn(x) -> x + 10 end)
         == [10000, 10010, 10020, 10030, 10040]
@@ -84,15 +91,15 @@ defmodule Experimental.EnumPadTest do
   end
 
   test "pad: empty enumerable" do
-    for enum <- @empty_enumerables do
-      assert pad(enum, 5)            == [nil, nil, nil, nil, nil]
-      assert pad(enum, 5, cyc([42])) == [42, 42, 42, 42, 42]
-      assert pad(enum, 1, cyc([0]))  == [0]
-      assert pad(enum, 5, fn
-        nil -> 0
-        x -> x + 10
-      end) == [0, 10, 20, 30, 40]
-    end
+    assert pad([], 5) == [nil, nil, nil, nil, nil]
+    assert pad([], 5, cyc([42])) == [42, 42, 42, 42, 42]
+    assert pad([], 1, cyc([0]))  == [0]
+    assert pad([], 5, fn
+      nil -> 0
+      x -> x + 10
+    end) == [0, 10, 20, 30, 40]
+
+    assert pad(%{}, 5, %{a: 1, b: 2}) == %{a: 1, b: 2}
   end
 
   test "pad: size == 0" do
@@ -111,14 +118,18 @@ defmodule Experimental.EnumPadTest do
 
   test "pad: negative size" do
     for enum <- build_emumerables(1..5) do
-      assert pad(enum, -100)           == Enum.to_list(enum)
-      assert pad(enum, -100, &(&1+10)) == Enum.to_list(enum)
+      assert_raise FunctionClauseError, fn ->
+        pad(enum, -100)           == Enum.to_list(enum)
+      end
+      assert_raise FunctionClauseError, fn ->
+        pad(enum, -100, &(&1+10)) == Enum.to_list(enum)
+      end
     end
   end
 
   test "pad: check optimization" do
     for enum <- build_emumerables(1..1_000_000) do
-      assert pad(enum, 1_000_005, &(&1+10)) == 
+      assert pad(enum, 1_000_005, &(&1+10)) ==
         :"Elixir.Enum".reverse(
           [1_000_050, 1_000_040, 1_000_030, 1_000_020, 1_000_010
           | :"Elixir.Enum".reverse(enum)])
@@ -135,18 +146,22 @@ defmodule Experimental.EnumPadTest do
   end
 
   test "pad: map and keyword list" do
-    enums = [
-      %{a: 1, b: 2, c: 3},
-      [a: 1, b: 2, c: 3]
-    ]
-    for enum <- enums do
-      assert pad(enum, 5)
-        == [{:a, 1}, {:b, 2}, {:c, 3}, nil, nil]
-      assert pad(enum, 5, cyc([42]))
-        == [{:a, 1}, {:b, 2}, {:c, 3}, 42, 42]
-      assert pad(enum, 5, fn({_k,v}) -> {nil, v + 10} end)
-        == [{:a, 1}, {:b, 2}, {:c, 3}, {nil, 13}, {nil, 23}]
-    end
+    map = %{a: 1, b: 2, c: 3}
+    list = [a: 1, b: 2, c: 3]
+
+    assert pad(list, 5)
+      == [{:a, 1}, {:b, 2}, {:c, 3}, nil, nil]
+    assert pad(list, 5, cyc([42]))
+      == [{:a, 1}, {:b, 2}, {:c, 3}, 42, 42]
+    assert pad(list, 5, fn({_k,v}) -> {nil, v + 10} end)
+      == [{:a, 1}, {:b, 2}, {:c, 3}, {nil, 13}, {nil, 23}]
+
+    assert pad(map, 5, %{d: 4})
+      == %{a: 1, b: 2, c: 3, d: 4}
+    assert pad(map, 5, cyc(%{d: 4}))
+      == %{a: 1, b: 2, c: 3, d: 4}
+    assert pad(map, 5, fn({_k,v}) -> {nil, v + 10} end)
+      == %{a: 1, b: 2, c: 3, nil: 13}
   end
 
   test "pad: edge cases" do
